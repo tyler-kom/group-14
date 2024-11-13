@@ -1,0 +1,78 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the dataset
+file_path = r"C:\Users\dustd\Downloads\states (1).csv"
+data = pd.read_csv(file_path)
+
+# Data Cleaning
+# Convert percentage columns to numeric (remove '%' and convert to float)
+data['Uninsured Rate (2010)'] = data['Uninsured Rate (2010)'].str.rstrip('%').astype(float)
+data['Uninsured Rate (2015)'] = data['Uninsured Rate (2015)'].str.rstrip('%').astype(float)
+data['Uninsured Rate Change (2010-2015)'] = data['Uninsured Rate Change (2010-2015)'].str.strip().str.rstrip('%').astype(float)
+
+# Convert 'State Medicaid Expansion (2016)' to boolean
+data['State Medicaid Expansion (2016)'] = data['State Medicaid Expansion (2016)'].map({'True': True, 'False': False})
+
+# Summary Statistics for Medicaid Enrollment (2013 and 2016)
+summary_statistics = {
+    'Medicaid Enrollment (2013)': data['Medicaid Enrollment (2013)'].describe(),
+    'Medicaid Enrollment (2016)': data['Medicaid Enrollment (2016)'].describe(),
+    'Medicaid Enrollment Change (2013-2016)': data['Medicaid Enrollment Change (2013-2016)'].describe()
+}
+summary_df = pd.DataFrame(summary_statistics)
+print(summary_df)
+
+# 1. Line Plot for Medicaid Enrollment Trends (2013 vs 2016)
+plt.figure(figsize=(10, 6))
+plt.plot(data['State'], data['Medicaid Enrollment (2013)'], marker='o', label='2013')
+plt.plot(data['State'], data['Medicaid Enrollment (2016)'], marker='o', linestyle='--', label='2016')
+plt.xticks(rotation=90)
+plt.xlabel("State")
+plt.ylabel("Medicaid Enrollment")
+plt.title("Medicaid Enrollment Trends in 2013 vs 2016")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# 2. Bar Chart for Medicaid Enrollment Change by State (2013-2016)
+plt.figure(figsize=(10, 6))
+plt.bar(data['State'], data['Medicaid Enrollment Change (2013-2016)'])
+plt.xticks(rotation=90)
+plt.xlabel("State")
+plt.ylabel("Medicaid Enrollment Change (2013-2016)")
+plt.title("Medicaid Enrollment Change by State (2013-2016)")
+plt.tight_layout()
+plt.show()
+
+# 3. Heatmap for Medicaid Enrollment Change with Expansion Status
+import seaborn as sns
+
+# Pivot the data to prepare for the heatmap
+pivot_data = data.pivot(index="State", columns="State Medicaid Expansion (2016)", values="Medicaid Enrollment Change (2013-2016)").infer_objects()
+
+plt.figure(figsize=(8, 12))
+sns.heatmap(pivot_data, annot=True, fmt=".0f", cmap="coolwarm", cbar_kws={'label': 'Enrollment Change'})
+plt.title("Medicaid Enrollment Change by State (2013-2016) - Heatmap")
+plt.ylabel("State")
+plt.xlabel("Medicaid Expansion (2016)")
+plt.tight_layout()
+plt.show()
+
+My Thoughts:
+
+Medicaid Enrollment (2013): The average Medicaid enrollment in 2013 was approximately 2.26 million, with a large range from a minimum of 67,518 to a maximum of 56.4 million. This variation reflects differences in state populations and existing Medicaid coverage levels before expansion.
+
+Medicaid Enrollment (2016): By 2016, the average Medicaid enrollment increased to around 2.83 million. The minimum and maximum enrollments also rose, showing that nearly all states experienced an increase, with values ranging from 63,583 to 73.5 million.
+
+Medicaid Enrollment Change (2013-2016): The average change in Medicaid enrollment was approximately 644,246, though there was significant variation (standard deviation of 2.3 million). The maximum change was an increase of over 16 million in a single state, indicating substantial increases in certain states, especially those with larger populations and that implemented expansion. A few states saw smaller changes, with one state experiencing a slight decrease (-3,935).
+
+The analysis and visualizations indicate a strong influence of the Medicaid Expansion Plan of 2016 on enrollment numbers. States that adopted the expansion generally saw significant increases in Medicaid enrollment compared to non-expansion states. This difference is evident from both the average enrollment changes and the visual representations. The data suggests that the expansion policy effectively increased Medicaid access across expansion states, reducing uninsured rates and expanding healthcare access.
+
+In summary:
+
+Impact of Medicaid Expansion: States that adopted the expansion experienced marked increases in Medicaid enrollment, consistent with the policy’s intent to broaden healthcare access.
+
+Variation Among States: Differences in population size, baseline Medicaid coverage, and state policies led to varied impacts, with some states seeing exceptionally high enrollment growth.
+
+Overall, the Medicaid Expansion Plan of 2016 significantly boosted Medicaid enrollment in participating states, achieving its goal of expanding healthcare coverage for low-income individuals.
